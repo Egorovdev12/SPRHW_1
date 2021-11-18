@@ -3,7 +3,7 @@ import java.net.ServerSocket;
 
 public class Server {
 
-    public void serverStart() {
+    public void start() {
         while (true) {
             try (final ServerSocket serverSocket = new ServerSocket(1221)) {
 

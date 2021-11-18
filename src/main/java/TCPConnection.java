@@ -18,7 +18,7 @@ public class TCPConnection implements Runnable{
         try {
             buffReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             buffWriter = new BufferedOutputStream(socket.getOutputStream());
-            threadPool.submit(this);
+            threadPool.execute(this);
         }
         catch (IOException ex) {
             ex.printStackTrace();
