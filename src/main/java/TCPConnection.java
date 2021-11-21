@@ -2,7 +2,10 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,7 +29,6 @@ public class TCPConnection implements Runnable{
         finally {
             threadPool.shutdown();
         }
-
     }
 
     @Override
@@ -40,8 +42,27 @@ public class TCPConnection implements Runnable{
                 return;
             }
 
-            // Здесь мы берем вторую строку из запроса - она будет содержать в себе название файла
+            // Здесь мы берем вторую строку из запроса - это наша query string
             final String path = lineParts[1];
+            // path = /my/ratings/top?first=one&second=two
+            // Сначала отделим параметры от пути. "?" - символ начала параметров запроса
+            String[] lineParts2 = path.split("\\?");
+            final String path2 = lineParts2[1];
+            // Получили строку, содержащую все пары ключ-значение. Делим далее, теперь делитель - &
+            String[] lineParts3 = path2.split("&");
+            // Теперь мы имеем массив, содержащий пары ключ-значение. Распарсим его в коллекцию
+            Map<String, String> mapa = new HashMap<>();
+            for (String keyAndValue : lineParts3) {
+                String[] temp = keyAndValue.split("=");
+                mapa.put(temp[0],  temp[1]);
+            }
+
+            Iterator it = mapa.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, String> pair = (Map.Entry)it.next();
+                System.out.println("Ключ: " + pair.getKey() + ", значение: " + pair.getValue());
+            }
+
             // Если в списке имен файлов такого не будет найдено, то вернется вот такой запрос
             if (!validPaths.contains(path)) {
                 buffWriter.write((
