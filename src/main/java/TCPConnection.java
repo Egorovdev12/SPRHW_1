@@ -1,5 +1,10 @@
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+
 import java.io.*;
 import java.net.Socket;
+import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -36,31 +41,26 @@ public class TCPConnection implements Runnable{
         try {
             // В эту строку придёт http-запрос, сформированный браузером
             final String requestLine = buffReader.readLine();
-            final String[] lineParts = requestLine.split(" ");
 
+            // Если длина не равна 3, то запрос ситается некорректным
+            final String[] lineParts = requestLine.split(" ");
             if (lineParts.length != 3) {
                 return;
             }
 
-            // Здесь мы берем вторую строку из запроса - это наша query string
-            final String path = lineParts[1];
-            // path = /my/ratings/top?first=one&second=two
-            // Сначала отделим параметры от пути. "?" - символ начала параметров запроса
-            String[] lineParts2 = path.split("\\?");
-            final String path2 = lineParts2[1];
-            // Получили строку, содержащую все пары ключ-значение. Делим далее, теперь делитель - &
-            String[] lineParts3 = path2.split("&");
-            // Теперь мы имеем массив, содержащий пары ключ-значение. Распарсим его в коллекцию
-            Map<String, String> mapa = new HashMap<>();
-            for (String keyAndValue : lineParts3) {
-                String[] temp = keyAndValue.split("=");
-                mapa.put(temp[0],  temp[1]);
-            }
+            // Получаем путь к файлу в каталоге, отделив его от параметров
+            final String path = lineParts[1].split("\\?")[0];
 
-            Iterator it = mapa.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, String> pair = (Map.Entry)it.next();
-                System.out.println("Ключ: " + pair.getKey() + ", значение: " + pair.getValue());
+            if (lineParts[1].contains("?")) {
+                // Парсим вручную
+                Request request = new Request(requestLine);
+                String param = request.getQueryParam("second");
+                System.out.println("Значение искомого парметра: " + param);
+                request.getQueryParams();
+
+                // Парсим с помощью библиотеки
+                System.out.println("Получим значение второго параметра с помощью httpClient: " + request.getQueryParamUseHttpClient("second"));
+                request.getQueryParamsUseHttpClient();
             }
 
             // Если в списке имен файлов такого не будет найдено, то вернется вот такой запрос
