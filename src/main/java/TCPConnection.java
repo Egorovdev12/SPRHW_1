@@ -1,16 +1,8 @@
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-
 import java.io.*;
 import java.net.Socket;
-import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -54,9 +46,6 @@ public class TCPConnection implements Runnable{
             if (lineParts[1].contains("?")) {
                 // Парсим вручную
                 Request request = new Request(requestLine);
-                String param = request.getQueryParam("second");
-                System.out.println("Значение искомого парметра: " + param);
-                request.getQueryParams();
 
                 // Парсим с помощью библиотеки
                 System.out.println("Получим значение второго параметра с помощью httpClient: " + request.getQueryParamUseHttpClient("second"));
