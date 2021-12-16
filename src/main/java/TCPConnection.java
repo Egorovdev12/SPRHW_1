@@ -26,7 +26,6 @@ public class TCPConnection implements Runnable{
         finally {
             threadPool.shutdown();
         }
-
     }
 
     @Override
@@ -34,14 +33,25 @@ public class TCPConnection implements Runnable{
         try {
             // В эту строку придёт http-запрос, сформированный браузером
             final String requestLine = buffReader.readLine();
-            final String[] lineParts = requestLine.split(" ");
 
+            // Если длина не равна 3, то запрос ситается некорректным
+            final String[] lineParts = requestLine.split(" ");
             if (lineParts.length != 3) {
                 return;
             }
 
-            // Здесь мы берем вторую строку из запроса - она будет содержать в себе название файла
-            final String path = lineParts[1];
+            // Получаем путь к файлу в каталоге, отделив его от параметров
+            final String path = lineParts[1].split("\\?")[0];
+
+            if (lineParts[1].contains("?")) {
+                // Парсим вручную
+                Request request = new Request(requestLine);
+
+                // Парсим с помощью библиотеки
+                System.out.println("Получим значение второго параметра с помощью httpClient: " + request.getQueryParamUseHttpClient("second"));
+                request.getQueryParamsUseHttpClient();
+            }
+
             // Если в списке имен файлов такого не будет найдено, то вернется вот такой запрос
             if (!validPaths.contains(path)) {
                 buffWriter.write((
